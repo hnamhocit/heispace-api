@@ -5,25 +5,44 @@ import { AuditLogsModule } from './audit-logs/audit-logs.module';
 import { MailModule } from './mail/mail.module';
 import { NotificationsModule } from './notifications/notifications.module';
 import { UploadsModule } from './uploads/uploads.module';
-import { CronJobsModule } from './cron_jobs/cron_jobs.module';
+import { CronJobsModule } from './cron-jobs/cron-jobs.module';
 import { HealthModule } from './health/health.module';
-import { ApiKeysModule } from './api-keys/api-keys.module';
-import { EventsModule } from './events/events.module';
-import { LogsModule } from './logs/logs.module';
+import { minutes, seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
+import { APP_GUARD } from '@nestjs/core';
 
 @Module({
   imports: [
     ConfigModule.forRoot({ isGlobal: true }),
+    ThrottlerModule.forRoot([
+      {
+        name: 'short',
+        ttl: seconds(1),
+        limit: 5,
+      },
+      {
+        name: 'medium',
+        ttl: minutes(1),
+        limit: 100,
+      },
+      {
+        name: 'long',
+        ttl: minutes(15),
+        limit: 1000,
+      },
+    ]),
     UsersModule,
     AuditLogsModule,
     MailModule,
     NotificationsModule,
     UploadsModule,
     CronJobsModule,
-    HealthModule,
-    ApiKeysModule,
-    EventsModule,
-    LogsModule
+    HealthModule
+  ],
+  providers: [
+    {
+      provide: APP_GUARD,
+      useClass: ThrottlerGuard,
+    },
   ],
 })
 export class AppModule { }
