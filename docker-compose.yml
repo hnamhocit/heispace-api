@@ -1,0 +1,16 @@
+services:
+  postgres:
+    image: postgres:18
+    container_name: postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: "@hn71LP10"
+      POSTGRES_DB: heispace
+    ports:
+      - "5432:5432"
+    volumes:
+      - heispace_postgres_data:/var/lib/postgresql/data
+
+volumes:
+  heispace_postgres_data:
