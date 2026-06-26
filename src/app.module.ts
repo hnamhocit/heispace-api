@@ -9,6 +9,7 @@ import { CronJobsModule } from './cron-jobs/cron-jobs.module';
 import { HealthModule } from './health/health.module';
 import { minutes, seconds, ThrottlerGuard, ThrottlerModule } from '@nestjs/throttler';
 import { APP_GUARD } from '@nestjs/core';
+import { DatabaseModule } from './database/database.module';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import { APP_GUARD } from '@nestjs/core';
         limit: 1000,
       },
     ]),
+    DatabaseModule,
     UsersModule,
     AuditLogsModule,
     MailModule,
