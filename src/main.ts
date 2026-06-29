@@ -1,14 +1,17 @@
 import helmet from 'helmet';
 import { randomUUID } from 'crypto';
-import { NestFactory } from '@nestjs/core';
+import { NestFactory, Reflector } from '@nestjs/core';
 import { AppModule } from './app.module';
 import {
+  BadRequestException,
   ValidationPipe,
   VersioningType,
 } from '@nestjs/common';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 import { apiReference } from '@scalar/nestjs-api-reference';
+import { GlobalExceptionFilter } from './common/filters';
+import { ResponseInterceptor } from './common/interceptors';
 
 async function bootstrap() {
   const isProd = process.env.NODE_ENV === 'production';
@@ -69,14 +72,24 @@ async function bootstrap() {
       whitelist: true,
       forbidNonWhitelisted: true,
       transform: true,
-      stopAtFirstError: true,
-      validationError: {
-        target: false,
-        value: false,
+      exceptionFactory: (errors) => {
+        const messages = errors.flatMap((error) => {
+          if (!error.constraints) return [];
+
+          return Object.values(error.constraints).map((message) => {
+            return `${error.property} ${message}`;
+          });
+        });
+
+        return new BadRequestException(messages);
       },
-      disableErrorMessages: isProd,
     }),
   );
+
+  app.useGlobalFilters(new GlobalExceptionFilter());
+
+  const reflector = app.get(Reflector);
+  app.useGlobalInterceptors(new ResponseInterceptor(reflector));
 
   /**
    * CORS.

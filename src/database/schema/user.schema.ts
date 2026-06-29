@@ -11,6 +11,7 @@ import {
 } from "drizzle-orm/pg-core";
 
 export const userGenderEnum = pgEnum("user_gender", ["male", "female", "other", "prefer_not_to_say"]);
+export const userRoleEnum = pgEnum("user_role", ["admin", "user", "moderator"]);
 
 export const users = pgTable("users", {
     id: uuid("id").primaryKey().default(sql`uuidv7()`),
@@ -31,6 +32,7 @@ export const users = pgTable("users", {
     phoneNumber: varchar("phone_number", { length: 20 }),
     gender: userGenderEnum("gender").notNull().default("prefer_not_to_say"),
     birthDay: date("birth_day"),
+    role: userRoleEnum("role").notNull().default("user"),
 
     createdAt: timestamp("created_at", { withTimezone: true })
         .notNull()
