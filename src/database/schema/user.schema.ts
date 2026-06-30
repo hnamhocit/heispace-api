@@ -25,10 +25,6 @@ export const users = pgTable("users", {
 
     isActive: boolean("is_active").notNull().default(true),
 
-    onboardingCompleted: boolean("onboarding_completed")
-        .notNull()
-        .default(false),
-
     phoneNumber: varchar("phone_number", { length: 20 }),
     gender: userGenderEnum("gender").notNull().default("prefer_not_to_say"),
     birthDay: date("birth_day"),
